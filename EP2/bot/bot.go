@@ -11,10 +11,11 @@ import (
 // funcao de inverter o input do usuario.
 func reverse(input string) string {
 	runes := []rune(input)
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
+	resultado := ""
+	for i := len(runes) - 1; i >= 0; i-- {
+		resultado += string(runes[i])
 	}
-	return string(runes)
+	return resultado
 }
 
 func main() {
