@@ -47,15 +47,13 @@ func broadcaster() {
 			if msg.destiny == "all" {
 				for i := range users {
 					user := users[i]
-					if strings.ToUpper(user.nickname) != strings.ToUpper(msg.sender) {
-						user.channel <- msg.text
-					}
+					user.channel <- msg.text
 				}
 			} else { //envio para um só usuario/mensagem privada
 				for i := range users {
 					user := users[i]
 
-					if strings.ToUpper(user.nickname) == strings.ToUpper(msg.destiny) {
+					if user.nickname == msg.destiny {
 						user.channel <- msg.text
 					}
 				}
