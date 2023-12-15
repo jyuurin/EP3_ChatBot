@@ -1,21 +1,20 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"strings"
 )
 
-func Reverse(str string) string {
-	reversed_str := ""
-
-	for _, v := range str {
-		reversed_str = string(v) + reversed_str
+// funcao de inverter o input do usuario.
+func reverse(input string) string {
+	runes := []rune(input)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
 	}
-
-	return reversed_str
+	return string(runes)
 }
 
 func main() {
@@ -25,31 +24,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	done := make(chan struct{})
+	defer conn.Close()
 
 	go func() {
+		reader := bufio.NewReader(conn)
 		for {
-			buff := make([]byte, 1024)
-			bytesRead, err := conn.Read(buff)
+			msg_string, err := reader.ReadString('\n')
 			if err != nil {
 				log.Fatal(err)
-				conn.Close()
 				break
 			}
-			msg_string := string(buff[:bytesRead])
-			if strings.HasPrefix(msg_string, "(private)") {
-				arr_string := strings.Split(msg_string, ": ")
-				content := strings.ReplaceAll(arr_string[1], "\n", "")
-				sender := strings.Split(arr_string[0], "(private) ")[1]
-				fmt.Println("/msg " + sender + " " + Reverse(content))
-				conn.Write([]byte("/msg " + sender + " " + Reverse(content)))
-				conn.Write([]byte("\n"))
+			//aqui trata o input do usuario e chama a função de inverter.
+			msg_string = strings.TrimSpace(msg_string)
+			if strings.HasPrefix(msg_string, "/inverteMsg") {
+				reversedText := reverse(strings.TrimPrefix(msg_string, "/inverteMsg"))
+				fmt.Fprint(conn, "Inverti! "+reversedText)
 			}
-
 		}
-		done <- struct{}{}
 	}()
-
-	io.WriteString(conn, "/changenickname inversor\n")
-	<-done
+	select {}
 }
